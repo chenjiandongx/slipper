@@ -98,6 +98,131 @@ class FuncResponse:
 class Response(FuncResponse, AttrResponse):
     """
     Response 类，继承自属性类和方法类
+
+    *Attrs*
+    -------
+    version:
+        Response’s version, HttpVersion instance.
+    status:
+        HTTP status code of response (int), e.g. 200.
+    reason:
+        HTTP status reason of response (str), e.g. "OK".
+    method:
+        Request’s method (str).
+    url:
+        URL of request (URL).
+    real_url:
+        Unmodified URL of request (URL).
+    connection:
+        Connection used for handling response.
+    content:
+        Payload stream, which contains response’s BODY (StreamReader).
+        It supports various reading methods depending on the expected
+        format. When chunked transfer encoding is used by the server,
+        allows retrieving the actual http chunks.
+
+        Reading from the stream may raise aiohttp.ClientPayloadError
+        if the response object is closed before response receives
+        all data or in case if any transfer encoding related errors
+        like misformed chunked encoding of broken compression data.
+    cookies:
+        HTTP cookies of response (Set-Cookie HTTP header, SimpleCookie).
+    headers:
+        A case-insensitive multidict proxy with HTTP headers
+        of response, CIMultiDictProxy.
+    raw_headers:
+        Unmodified HTTP headers of response as unconverted bytes,
+        a sequence of (key, value) pairs.
+    links:
+        Link HTTP header parsed into a MultiDictProxy.
+        For each link, key is link param rel when it exists, or link
+        url as str otherwise, and value is MultiDictProxy of link
+        params and url at key url as URL instance.
+    content_type:
+        Read-only property with content part of Content-Type header.
+    charset:
+        Read-only property that specifies the encoding for the request’s BODY.
+        The value is parsed from the Content-Type HTTP header.
+        Returns str like 'utf-8' or None if no Content-Type header
+        present in HTTP headers or it has no charset information.
+    content_disposition:
+        Read-only property that specified the Content-Disposition HTTP header.
+        Instance of ContentDisposition or None if no Content-Disposition
+        header present in HTTP headers.
+    history:
+        A Sequence of ClientResponse objects of preceding requests (earliest
+        request first) if there were redirects, an empty sequence otherwise.
+    request_info:
+        A namedtuple with request URL and headers from ClientRequest
+        object, aiohttp.RequestInfo instance.
+
+    *Funcs*
+    -------
+    close():
+        Close response and underlying connection.
+        For keep-alive support see release().
+    raise_for_status():
+        Raise an aiohttp.ClientResponseError if the response
+        status is 400 or higher.
+        Do nothing for success responses (less than 400).
+    get_encoding():
+        Automatically detect content encoding using charset info in
+        Content-Type HTTP header. If this info is not exists or
+        there are no appropriate codecs for encoding then cchardet / chardet is used.
+        Beware that it is not always safe to use the result of this
+        function to decode a response. Some encodings detected by
+        cchardet are not known by Python (e.g. VISCII).
+    read() - coroutine:
+        Read the whole response’s body as bytes.
+        Close underlying connection if data reading gets an error,
+        release connection otherwise.
+        Raise an aiohttp.ClientResponseError if the data can’t be read.
+        Return bytes:	read BODY.
+    release() - coroutine:
+        It is not required to call release on the response object.
+        When the client fully receives the payload, the underlying
+        connection automatically returns back to pool.
+        If the payload is not fully read, the connection is closed
+    text(encoding=None) - coroutine:
+        Read response’s body and return decoded str using
+        specified encoding parameter.
+        If encoding is None content encoding is autocalculated using
+        Content-Type HTTP header and chardet tool if the header is
+        not provided by server.
+
+        cchardet is used with fallback to chardet if cchardet is not available.
+        Close underlying connection if data reading gets an error,
+        release connection otherwise.
+
+        Parameters:	encoding (str) – text encoding used for BODY decoding,
+                    or None for encoding autodetection (default).
+        Return str:	decoded BODY
+        Raises:	LookupError – if the encoding detected by chardet or
+                cchardet is unknown by Python (e.g. VISCII).
+    json(*, encoding=None, loads=json.loads, content_type='application/json') - coroutine:
+        Read response’s body as JSON, return dict using specified encoding
+        and loader. If data is not still available a read call will be done,
+        If encoding is None content encoding is autocalculated using cchardet
+        or chardet as fallback if cchardet is not available.
+
+        if response’s content-type does not match content_type parameter
+        aiohttp.ContentTypeError get raised. To disable content
+        type check pass None value.
+
+        Parameters:
+        * encoding (str) – text encoding used for BODY decoding, or
+        None for encoding autodetection (default).
+        By the standard JSON encoding should be UTF-8 but practice beats
+        purity: some servers return non-UTF responses. Autodetection
+        works pretty fine anyway.
+        * loads (callable) – callable() used for loading JSON data,
+        json.loads() by default.
+        * content_type (str) – specify response’s content-type, if content type does
+        not match raise aiohttp.ClientResponseError. To disable content-type check,
+        pass None as value. (default: application/json).
+        Returns:
+        BODY as JSON data parsed by loads parameter or None if BODY is
+        empty or contains white-spaces only.
     """
     pass
 
