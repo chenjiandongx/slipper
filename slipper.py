@@ -1,21 +1,11 @@
-# encoding=utf8
+#!/usr/bin/env python
+# coding=utf-8
 
 import json
 
 import aiohttp
 
-__all__ = [
-    "Response",
-    "Session",
-    "request",
-    "get",
-    "post",
-    "options",
-    "head",
-    "put",
-    "patch",
-    "delete",
-]
+__all__ = ["Response", "Session", "requests"]
 
 TEXT = "text"
 JSON = "json"
@@ -131,7 +121,7 @@ class Session:
         cookie_jar=None,
         read_timeout=None,
         conn_timeout=None,
-        timeout=8,
+        timeout=aiohttp.ClientTimeout(),
         raise_for_status=False,
         connector_owner=True,
         auto_decompress=True,
@@ -208,344 +198,361 @@ class Session:
         )
 
 
-async def request(
-    method,
-    url,
-    *,
-    params=None,
-    client_sess=None,
-    expect_resp=None,
-    data=None,
-    json=None,
-    headers=None,
-    skip_auto_headers=None,
-    auth=None,
-    allow_redirects=True,
-    max_redirects=10,
-    compress=None,
-    chunked=None,
-    expect100=False,
-    read_until_eof=True,
-    proxy=None,
-    proxy_auth=None,
-    timeout=8,
-    ssl=None,
-    verify_ssl=None,
-    fingerprint=None,
-    ssl_context=None,
-    proxy_headers=None,
-):
-    """
+class Request:
 
-    :param method:
-        HTTP method
-    :param url:
-         Request URL, str or URL.
-    :param params:
-        Mapping, iterable of tuple of key/value pairs or string to
-        be sent as parameters in the query string of the new request.
-        Ignored for subsequent redirected requests (optional)
+    @staticmethod
+    async def request(
+        method,
+        url,
+        *,
+        params=None,
+        client_sess=None,
+        expect_resp=None,
+        data=None,
+        json=None,
+        headers=None,
+        skip_auto_headers=None,
+        auth=None,
+        allow_redirects=True,
+        max_redirects=10,
+        compress=None,
+        chunked=None,
+        expect100=False,
+        read_until_eof=True,
+        proxy=None,
+        proxy_auth=None,
+        timeout=8,
+        ssl=None,
+        verify_ssl=None,
+        fingerprint=None,
+        ssl_context=None,
+        proxy_headers=None,
+    ):
+        """
 
-        Allowed values are:
-        * collections.abc.Mapping e.g. dict, aiohttp.MultiDict or
-          aiohttp.MultiDictProxy
-        * collections.abc.Iterable e.g. tuple or list
-        * str with preferably url-encoded content (Warning: content
-          will not be encoded by aiohttp)
-    :param expect_resp:
-        except Response type, could be any attrs/funcs in Response class
-        example:
-            expect_resp=Response.url
-            except_resp=Response.text()
-    :param client_sess:
-        ClientSession() instantiation parameters dictionary
-    :param data:
-        Dictionary, bytes, or file-like object to send in the
-        body of the request (optional)
-    :param json:
-        Any json compatible python object (optional). json and data
-        parameters could not be used at the same time.
-    :param headers:
-        (dict) HTTP Headers to send with the request (optional)
-    :param skip_auto_headers:
-        set of headers for which autogeneration should be skipped.
-        aiohttp autogenerates headers like User-Agent or Content-Type
-        if these headers are not explicitly passed. Using skip_auto_headers
-        parameter allows to skip that generation.
-        Iterable of str or istr (optional)
-    :param auth:
-         an object that represents HTTP Basic Authorization (optional)
-    :param allow_redirects:
-        If set to False, do not follow redirects. True by default (optional).
-    :param max_redirects:
-        (int) - Maximum number of redirects to follow. 10 by default.
-    :param compress:
-        (bool) - Set to True if request has to be compressed with
-        deflate encoding. If compress can not be combined with a
-        Content-Encoding and Content-Length headers. None by default (optional).
-    :param chunked:
-        (int) – Enable chunked transfer encoding. It is up to the developer
-        to decide how to chunk data streams. If chunking is enabled,
-        aiohttp encodes the provided chunks in the “Transfer-encoding:
-        chunked” format. If chunked is set, then the Transfer-encoding
-        and content-length headers are disallowed. None by default (optional).
-    :param expect100:
-        (bool) – Expect 100-continue response from server.
-        False by default (optional).
-    :param read_until_eof:
-        (bool) – Read response until EOF if response does not have
-        Content-Length header. True by default (optional).
-    :param proxy:
-        proxy – Proxy URL, str or URL (optional)
-    :param proxy_auth:
-        (aiohttp.BasicAuth) - an object that represents proxy
-        HTTP Basic Authorization (optional)
-    :param timeout:
-        override the session’s timeout.
-        Changed in version 3.3: The parameter is ClientTimeout instance,
-        float is still supported for sake of backward compatibility.
-        If float is passed it is a total timeout.
-    :param ssl:
-        SSL validation mode. None for default SSL check
-        (ssl.create_default_context() is used), False for skip
-        SSL certificate validation, aiohttp.Fingerprint for fingerprint
-        validation, ssl.SSLContext for custom SSL certificate validation.
-        Supersedes verify_ssl, ssl_context and fingerprint parameters.
-    :param verify_ssl:
-        (bool) – Perform SSL certificate validation for HTTPS requests
-        (enabled by default). May be disabled to skip validation
-        for sites with invalid certificates.
-    :param fingerprint:
-        Pass the SHA256 digest of the expected certificate in DER format
-        to verify that the certificate the server presents matches.
-        Useful for certificate pinning.
-        Warning: use of MD5 or SHA1 digests is insecure and removed.
-    :param ssl_context:
-        (ssl.SSLContext) – ssl context used for processing
-        HTTPS requests (optional).
-        ssl_context may be used for configuring certification authority
-        channel, supported SSL options etc.
-    :param proxy_headers:
-        HTTP headers to send to the proxy if the parameter
-        proxy has been provided.
-    """
-    if client_sess is None:
-        _client_session = aiohttp.ClientSession()
-    else:
-        print(client_sess.params)
-        _client_session = aiohttp.ClientSession(**client_sess.params)
-    async with _client_session as session:
-        async with session.request(
-            method=method,
-            url=url,
-            params=params,
+        :param method:
+            HTTP method
+        :param url:
+             Request URL, str or URL.
+        :param params:
+            Mapping, iterable of tuple of key/value pairs or string to
+            be sent as parameters in the query string of the new request.
+            Ignored for subsequent redirected requests (optional)
+
+            Allowed values are:
+            * collections.abc.Mapping e.g. dict, aiohttp.MultiDict or
+              aiohttp.MultiDictProxy
+            * collections.abc.Iterable e.g. tuple or list
+            * str with preferably url-encoded content (Warning: content
+              will not be encoded by aiohttp)
+        :param expect_resp:
+            except Response type, could be any attrs/funcs in Response class
+            example:
+                expect_resp=Response.url
+                except_resp=Response.text()
+        :param client_sess:
+            ClientSession() instantiation parameters dictionary
+        :param data:
+            Dictionary, bytes, or file-like object to send in the
+            body of the request (optional)
+        :param json:
+            Any json compatible python object (optional). json and data
+            parameters could not be used at the same time.
+        :param headers:
+            (dict) HTTP Headers to send with the request (optional)
+        :param skip_auto_headers:
+            set of headers for which autogeneration should be skipped.
+            aiohttp autogenerates headers like User-Agent or Content-Type
+            if these headers are not explicitly passed. Using skip_auto_headers
+            parameter allows to skip that generation.
+            Iterable of str or istr (optional)
+        :param auth:
+             an object that represents HTTP Basic Authorization (optional)
+        :param allow_redirects:
+            If set to False, do not follow redirects. True by default (optional).
+        :param max_redirects:
+            (int) - Maximum number of redirects to follow. 10 by default.
+        :param compress:
+            (bool) - Set to True if request has to be compressed with
+            deflate encoding. If compress can not be combined with a
+            Content-Encoding and Content-Length headers. None by default (optional).
+        :param chunked:
+            (int) – Enable chunked transfer encoding. It is up to the developer
+            to decide how to chunk data streams. If chunking is enabled,
+            aiohttp encodes the provided chunks in the “Transfer-encoding:
+            chunked” format. If chunked is set, then the Transfer-encoding
+            and content-length headers are disallowed. None by default (optional).
+        :param expect100:
+            (bool) – Expect 100-continue response from server.
+            False by default (optional).
+        :param read_until_eof:
+            (bool) – Read response until EOF if response does not have
+            Content-Length header. True by default (optional).
+        :param proxy:
+            proxy – Proxy URL, str or URL (optional)
+        :param proxy_auth:
+            (aiohttp.BasicAuth) - an object that represents proxy
+            HTTP Basic Authorization (optional)
+        :param timeout:
+            override the session’s timeout.
+            Changed in version 3.3: The parameter is ClientTimeout instance,
+            float is still supported for sake of backward compatibility.
+            If float is passed it is a total timeout.
+        :param ssl:
+            SSL validation mode. None for default SSL check
+            (ssl.create_default_context() is used), False for skip
+            SSL certificate validation, aiohttp.Fingerprint for fingerprint
+            validation, ssl.SSLContext for custom SSL certificate validation.
+            Supersedes verify_ssl, ssl_context and fingerprint parameters.
+        :param verify_ssl:
+            (bool) – Perform SSL certificate validation for HTTPS requests
+            (enabled by default). May be disabled to skip validation
+            for sites with invalid certificates.
+        :param fingerprint:
+            Pass the SHA256 digest of the expected certificate in DER format
+            to verify that the certificate the server presents matches.
+            Useful for certificate pinning.
+            Warning: use of MD5 or SHA1 digests is insecure and removed.
+        :param ssl_context:
+            (ssl.SSLContext) – ssl context used for processing
+            HTTPS requests (optional).
+            ssl_context may be used for configuring certification authority
+            channel, supported SSL options etc.
+        :param proxy_headers:
+            HTTP headers to send to the proxy if the parameter
+            proxy has been provided.
+        """
+        if client_sess is None:
+            _client_session = aiohttp.ClientSession()
+        else:
+            _client_session = aiohttp.ClientSession(**client_sess.params)
+        async with _client_session as session:
+            async with session.request(
+                method=method,
+                url=url,
+                params=params,
+                data=data,
+                json=json,
+                headers=headers,
+                skip_auto_headers=skip_auto_headers,
+                auth=auth,
+                allow_redirects=allow_redirects,
+                max_redirects=max_redirects,
+                compress=compress,
+                chunked=chunked,
+                expect100=expect100,
+                read_until_eof=read_until_eof,
+                proxy=proxy,
+                proxy_auth=proxy_auth,
+                timeout=timeout,
+                ssl=ssl,
+                verify_ssl=verify_ssl,
+                fingerprint=fingerprint,
+                ssl_context=ssl_context,
+                proxy_headers=proxy_headers,
+            ) as resp:
+
+                func = keywords = None
+                if expect_resp is None:
+                    func = STATUS
+                else:
+                    if isinstance(expect_resp, (tuple, list)):
+                        if len(expect_resp) > 1:
+                            func, keywords = expect_resp
+                        else:
+                            func, = expect_resp
+                    elif isinstance(expect_resp, str):
+                        func = expect_resp
+
+                if func == TEXT:
+                    return await resp.text(**keywords)
+                elif func == JSON:
+                    return await resp.json(**keywords)
+                elif func == READ:
+                    return await resp.read()
+                elif func == RELEASE:
+                    return await resp.release()
+                elif func == GET_ENCODING:
+                    return resp.get_encoding()
+                elif func == CLOSE:
+                    return resp.close()
+                elif func == RAISE_FOR_STATUS:
+                    return resp.raise_for_status()
+
+                all_attrs = dict(
+                    url=resp.url,
+                    version=resp.version,
+                    status=resp.status,
+                    reason=resp.reason,
+                    real_url=resp.real_url,
+                    connection=resp.connection,
+                    content=resp.content,
+                    cookies=resp.cookies,
+                    headers=resp.headers,
+                    raw_headers=resp.raw_headers,
+                    links=resp.links,
+                    content_type=resp.content_type,
+                    charset=resp.charset,
+                    content_disposition=resp.content_disposition,
+                    history=resp.history,
+                    request_info=resp.request_info,
+                )
+
+                if func == ALL_ATTRS:
+                    return all_attrs
+
+                return all_attrs.get(func, None)
+
+    @staticmethod
+    async def get(url, *, expect_resp=None, client_sess=None, **kwargs):
+        """
+
+        :param url: Request URL, str or URL.
+        :param expect_resp:
+            except Response type, could be any attrs/funcs in Response class
+            example:
+                expect_resp=Response.url
+                except_resp=Response.text()
+        :param client_sess:
+            ClientSession() instantiation parameters dictionary
+        :param kwargs:
+        """
+        return await Request.request(
+            "get",
+            url,
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
+
+    @staticmethod
+    async def options(url, expect_resp=None, client_sess=None, **kwargs):
+        """
+
+        :param url: Request URL, str or URL.
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "options",
+            url,
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
+
+    @staticmethod
+    async def head(
+        url,
+        allow_redirects=False,
+        expect_resp=None,
+        client_sess=None,
+        **kwargs,
+    ):
+        """
+
+        :param url: Request URL, str or URL.
+        :param allow_redirects: If set to False, do not follow redirects.
+                                True by default (optional).
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "head",
+            url,
+            allow_redirects=allow_redirects,
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
+
+    @staticmethod
+    async def post(
+        url, data=None, json=None, expect_resp=None, client_sess=None, **kwargs
+    ):
+        """
+
+        :param url: Request URL, str or URL.
+        :param data: Dictionary, bytes, or file-like object to send in
+                     the body of the request (optional)
+        :param json: Any json compatible python object (optional). json and data
+                     parameters could not be used at the same time.
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "post",
+            url,
             data=data,
             json=json,
-            headers=headers,
-            skip_auto_headers=skip_auto_headers,
-            auth=auth,
-            allow_redirects=allow_redirects,
-            max_redirects=max_redirects,
-            compress=compress,
-            chunked=chunked,
-            expect100=expect100,
-            read_until_eof=read_until_eof,
-            proxy=proxy,
-            proxy_auth=proxy_auth,
-            timeout=timeout,
-            ssl=ssl,
-            verify_ssl=verify_ssl,
-            fingerprint=fingerprint,
-            ssl_context=ssl_context,
-            proxy_headers=proxy_headers,
-        ) as resp:
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
 
-            func = keywords = None
-            if expect_resp is None:
-                func = STATUS
-            else:
-                if isinstance(expect_resp, (tuple, list)):
-                    if len(expect_resp) > 1:
-                        func, keywords = expect_resp
-                    else:
-                        func, = expect_resp
-                elif isinstance(expect_resp, str):
-                    func = expect_resp
+    @staticmethod
+    async def put(
+        url, data=None, expect_resp=None, client_sess=None, **kwargs
+    ):
+        """
 
-            if func == TEXT:
-                return await resp.text(**keywords)
-            elif func == JSON:
-                return await resp.json(**keywords)
-            elif func == READ:
-                return await resp.read()
-            elif func == RELEASE:
-                return await resp.release()
-            elif func == GET_ENCODING:
-                return resp.get_encoding()
-            elif func == CLOSE:
-                return resp.close()
-            elif func == RAISE_FOR_STATUS:
-                return resp.raise_for_status()
+        :param url: Request URL, str or URL.
+        :param data: Dictionary, bytes, or file-like object to send in
+                     the body of the request (optional)
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "put",
+            url,
+            data=data,
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
 
-            all_attrs = dict(
-                url=resp.url,
-                version=resp.version,
-                status=resp.status,
-                reason=resp.reason,
-                real_url=resp.real_url,
-                connection=resp.connection,
-                content=resp.content,
-                cookies=resp.cookies,
-                headers=resp.headers,
-                raw_headers=resp.raw_headers,
-                links=resp.links,
-                content_type=resp.content_type,
-                charset=resp.charset,
-                content_disposition=resp.content_disposition,
-                history=resp.history,
-                request_info=resp.request_info,
-            )
+    @staticmethod
+    async def patch(
+        url, data=None, expect_resp=None, client_sess=None, **kwargs
+    ):
+        """
 
-            if func == ALL_ATTRS:
-                return all_attrs
+        :param url: Request URL, str or URL.
+        :param data: Dictionary, bytes, or file-like object to send in
+                     the body of the request (optional)
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "patch",
+            url,
+            expect_resp=expect_resp,
+            data=data,
+            client_sess=client_sess,
+            **kwargs,
+        )
 
-            return all_attrs.get(func, None)
+    @staticmethod
+    async def delete(url, expect_resp=None, client_sess=None, **kwargs):
+        """
+
+        :param url: Request URL, str or URL.
+        :param expect_resp: refer get()
+        :param client_sess: refer get()
+        :param kwargs:
+        """
+        return await Request.request(
+            "delete",
+            url,
+            expect_resp=expect_resp,
+            client_sess=client_sess,
+            **kwargs,
+        )
 
 
-async def get(url, *, expect_resp=None, client_sess=None, **kwargs):
-    """
-
-    :param url: Request URL, str or URL.
-    :param expect_resp:
-        except Response type, could be any attrs/funcs in Response class
-        example:
-            expect_resp=Response.url
-            except_resp=Response.text()
-    :param client_sess:
-        ClientSession() instantiation parameters dictionary
-    :param kwargs:
-    """
-    return await request(
-        "get", url, expect_resp=expect_resp, client_sess=client_sess, **kwargs
-    )
-
-
-async def options(url, expect_resp=None, client_sess=None, **kwargs):
-    """
-
-    :param url: Request URL, str or URL.
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "options",
-        url,
-        expect_resp=expect_resp,
-        client_sess=client_sess,
-        **kwargs,
-    )
-
-
-async def head(
-    url, allow_redirects=False, expect_resp=None, client_sess=None, **kwargs
-):
-    """
-
-    :param url: Request URL, str or URL.
-    :param allow_redirects: If set to False, do not follow redirects.
-                            True by default (optional).
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "head",
-        url,
-        allow_redirects=allow_redirects,
-        expect_resp=expect_resp,
-        client_sess=client_sess,
-        **kwargs,
-    )
-
-
-async def post(
-    url, data=None, json=None, expect_resp=None, client_sess=None, **kwargs
-):
-    """
-
-    :param url: Request URL, str or URL.
-    :param data: Dictionary, bytes, or file-like object to send in
-                 the body of the request (optional)
-    :param json: Any json compatible python object (optional). json and data
-                 parameters could not be used at the same time.
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "post",
-        url,
-        data=data,
-        json=json,
-        expect_resp=expect_resp,
-        client_sess=client_sess,
-        **kwargs,
-    )
-
-
-async def put(url, data=None, expect_resp=None, client_sess=None, **kwargs):
-    """
-
-    :param url: Request URL, str or URL.
-    :param data: Dictionary, bytes, or file-like object to send in
-                 the body of the request (optional)
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "put",
-        url,
-        data=data,
-        expect_resp=expect_resp,
-        client_sess=client_sess,
-        **kwargs,
-    )
-
-
-async def patch(url, data=None, expect_resp=None, client_sess=None, **kwargs):
-    """
-
-    :param url: Request URL, str or URL.
-    :param data: Dictionary, bytes, or file-like object to send in
-                 the body of the request (optional)
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "patch",
-        url,
-        expect_resp=expect_resp,
-        data=data,
-        client_sess=client_sess,
-        **kwargs,
-    )
-
-
-async def delete(url, expect_resp=None, client_sess=None, **kwargs):
-    """
-
-    :param url: Request URL, str or URL.
-    :param expect_resp: refer get()
-    :param client_sess: refer get()
-    :param kwargs:
-    """
-    return await request(
-        "delete",
-        url,
-        expect_resp=expect_resp,
-        client_sess=client_sess,
-        **kwargs,
-    )
+requests = Request()
