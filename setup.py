@@ -15,9 +15,25 @@ URL = "https://github.com/chenjiandongx/slipper"
 AUTHOR = "chenjiandongx"
 AUTHOR_EMAIL = "chenjiandongx@qq.com"
 LICENSE = "MIT"
-REQUIRES = ["aiohttp",]
-MODULES = ["slipper",]
+REQUIRES = ["aiohttp"]
+MODULES = ["slipper"]
 DESC = "Async HTTP Requests-like library based on Aiohttp"
+PYTHON_REQUIRES = ">=3.5.3"
+CLASSIFIERS = [
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Topic :: Internet :: WWW/HTTP",
+    "Framework :: AsyncIO",
+]
 
 
 setup(
@@ -30,4 +46,6 @@ setup(
     url=URL,
     py_modules=MODULES,
     description=DESC,
+    python_requires=PYTHON_REQUIRES,
+    classifiers=CLASSIFIERS,
 )
