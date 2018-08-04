@@ -33,7 +33,8 @@ from slipper import requests, Response
 
 
 async def fetch(url):
-    text = await requests.get(url, expect_resp=Response.url)
+    # expect_resp 指定要获取的 Response 类型，可选属性请 `tab`或查看 Response 注释文档
+    text = await requests.get(url, expect_resp=Response.text())
     print(text)
 
 loop = asyncio.get_event_loop()
@@ -69,7 +70,7 @@ from slipper import requests, Response
 
 async def fetch(url, sem):
     async with sem:
-        text = await requests.get(url, expect_resp=Response.url)
+        text = await requests.get(url, expect_resp=Response.version)
         pprint(text)
 
 
