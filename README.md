@@ -4,7 +4,7 @@
 
 ### 概述
 
-习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 aiohttp 总感觉不太舒服。所以决定给它做一个封装，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒胡？）
+习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 [aiohttp](https://github.com/aio-libs/aiohttp) 总感觉不太舒服。所以决定给它做一个封装，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒胡？）
 
 
 ### 安装
@@ -23,6 +23,11 @@ $ python setup.py install
 ```
 
 
+### API
+
+参照注释文档，就不用去翻 aiohttp 的文档啦
+
+
 ### 示例
 
 **单任务**
@@ -31,11 +36,19 @@ import asyncio
 
 from slipper import requests, Response
 
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+)
+
 
 async def fetch(url):
     # expect_resp 指定要获取的 Response 类型，可选属性请 `tab`或查看 Response 注释文档
-    text = await requests.get(url, expect_resp=Response.text())
+    text = await requests.get(
+        url, headers={"User-Agent": USER_AGENT}, expect_resp=Response.text()
+    )
     print(text)
+
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(fetch("http://chenjiandongx.com"))
@@ -109,6 +122,7 @@ tasks = [fetch(url, sem, sess) for url in ["http://chenjiandongx.com"] * 5]
 loop = asyncio.get_event_loop()
 loop.run_until_complete(asyncio.wait(tasks))
 ```
+怎么样，是不是写起来很顺手 😄
 
 
 ### License
