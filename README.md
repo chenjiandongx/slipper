@@ -1,8 +1,10 @@
 # Slipper [![PyPI version](https://badge.fury.io/py/slipper.svg)](https://badge.fury.io/py/slipper) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
+> 所有的第三方库，都需要站在巨人的肩膀上完成。 -- 尤世沃·兹基硕德
+
 ### 概述
 
-习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 aiohttp 总感觉不太舒服。所以决定给它做一个封装，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒适？）
+习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 aiohttp 总感觉不太舒服。所以决定给它做一个封装，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒胡？）
 
 
 ### 安装
