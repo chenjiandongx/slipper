@@ -4,7 +4,7 @@
 
 ### 概述
 
-习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 [aiohttp](https://github.com/aio-libs/aiohttp) 总感觉不太舒服。所以决定给它做一个封装，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒胡？）
+习惯了 [requests](http://github.com/requests/requests) 写法后，写异步代码的时候用 [aiohttp](https://github.com/aio-libs/aiohttp) 总感觉不太舒服。所以基于 aiohttp 写了这个项目，使异步写法更加的 pythonic。slipper 是拖孩的意思（因为拖孩穿起来舒胡？）
 
 
 ### 安装

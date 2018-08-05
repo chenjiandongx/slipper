@@ -20,7 +20,7 @@ MODULES = ["slipper"]
 DESC = "Async HTTP Requests-like library based on Aiohttp"
 PYTHON_REQUIRES = ">=3.5.3"
 CLASSIFIERS = [
-    "License :: OSI Approved :: Apache Software License",
+    "License :: MIT",
     "Intended Audience :: Developers",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
