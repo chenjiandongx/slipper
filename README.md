@@ -1,4 +1,4 @@
-# Slipper [![PyPI version](https://badge.fury.io/py/slipper.svg)](https://badge.fury.io/py/slipper) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+# Slipper [![PyPI version](https://badge.fury.io/py/slipper.svg)](https://badge.fury.io/py/slipper) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/chenjiandongx/awesome-python-cn/issues) [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > 所有的第三方库，都需要站在巨人的肩膀上完成。 -- 尤世沃·兹基硕德
 
@@ -25,7 +25,10 @@ $ python setup.py install
 
 ### API
 
-参照注释文档，就不用去翻 aiohttp 的文档啦
+参照注释文档，接口与 aiohttp 保持一致，另外新增了两个参数
+
+* expect_resp: 参数为期待的 `Response` 类型，`expect_resp=Response.text()` 相当于 aiohttp 的 `session.get().text()` 其他属性如 `url`, `version`, `headers` 等是类似的。
+* client_sess: 传入的是 `Session` 类实例，实例化参数与 aiohttp 的 `ClientSession` 参数一致。
 
 
 ### 示例
@@ -52,6 +55,9 @@ async def fetch(url):
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(fetch("http://chenjiandongx.com"))
+
+# python3.7+ 可使用 asyncIo.run()
+# asyncio.run(fetch("http://chenjiandongx.com"))
 ```
 
 **多任务并发**
