@@ -27,8 +27,10 @@ $ python setup.py install
 
 参照注释文档，接口与 aiohttp 保持一致，另外新增了两个参数
 
-* expect_resp: 参数为期待的 `Response` 类型，`expect_resp=Response.text()` 相当于 aiohttp 的 `session.get().text()` 其他属性如 `url`, `version`, `headers` 等是类似的。
-* client_sess: 传入的是 `Session` 类实例，实例化参数与 aiohttp 的 `ClientSession` 参数一致。
+* expect_resp  
+    期待的 `Response` 类型，`expect_resp=Response.text()` 相当于 aiohttp 的 `session.get().text()` 其他属性如 `url`, `version`, `headers` 等是类似的。
+* client_sess  
+    传入的 `Session` 类实例，实例化参数与 aiohttp 的 `ClientSession` 参数一致。
 
 
 ### 示例
