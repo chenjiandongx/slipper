@@ -359,7 +359,7 @@ class Request:
         read_until_eof=True,
         proxy=None,
         proxy_auth=None,
-        timeout=0,
+        timeout=aiohttp.ClientTimeout(),
         ssl=None,
         verify_ssl=None,
         fingerprint=None,
@@ -463,7 +463,9 @@ class Request:
         if client_sess is None:
             _client_session = await Request._get_session()
         else:
-            _client_session = await Request._get_session(use_kw=True, **client_sess.params)
+            _client_session = await Request._get_session(
+                use_kw=True, **client_sess.params
+            )
         async with _client_session.request(
             method=method,
             url=url,

@@ -1,5 +1,10 @@
 # 版本日志
 
+* ### version 0.3.0 - 2018.8.8
+    
+    #### Updated
+    * 解决全局 Session 问题
+
 * ### version 0.2.0 - 2018.8.4
     
     #### Updated
