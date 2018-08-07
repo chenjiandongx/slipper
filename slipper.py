@@ -325,18 +325,16 @@ class Session:
 
 class Request:
 
-    _instance = []
+    __instance = None
 
     @staticmethod
     async def _get_session(use_kw=False, **kwargs):
-        if not Request._instance:
+        if not Request.__instance:
             if use_kw:
-                ins = aiohttp.ClientSession(**kwargs)
-                Request._instance.append(ins)
+                Request.__instance = aiohttp.ClientSession(**kwargs)
             else:
-                ins = aiohttp.ClientSession()
-                Request._instance.append(ins)
-        return Request._instance[0]
+                Request.__instance = aiohttp.ClientSession()
+        return Request.__instance
 
     @staticmethod
     async def request(
@@ -542,7 +540,8 @@ class Request:
             return all_attrs.get(func, None)
 
     def __del__(self):
-        _ins = self._instance[0]
+        # 确保 session 能够被关闭
+        _ins = self.__instance
         if not _ins.closed:
             if _ins._connector_owner:
                 _ins._connector.close()
