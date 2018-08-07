@@ -325,6 +325,19 @@ class Session:
 
 class Request:
 
+    _instance = []
+
+    @staticmethod
+    async def _get_session(use_kw=False, **kwargs):
+        if not Request._instance:
+            if use_kw:
+                ins = aiohttp.ClientSession(**kwargs)
+                Request._instance.append(ins)
+            else:
+                ins = aiohttp.ClientSession()
+                Request._instance.append(ins)
+        return Request._instance[0]
+
     @staticmethod
     async def request(
         method,
@@ -346,7 +359,7 @@ class Request:
         read_until_eof=True,
         proxy=None,
         proxy_auth=None,
-        timeout=8,
+        timeout=0,
         ssl=None,
         verify_ssl=None,
         fingerprint=None,
@@ -448,85 +461,90 @@ class Request:
             proxy has been provided.
         """
         if client_sess is None:
-            _client_session = aiohttp.ClientSession()
+            _client_session = await Request._get_session()
         else:
-            _client_session = aiohttp.ClientSession(**client_sess.params)
-        async with _client_session as session:
-            async with session.request(
-                method=method,
-                url=url,
-                params=params,
-                data=data,
-                json=json,
-                headers=headers,
-                skip_auto_headers=skip_auto_headers,
-                auth=auth,
-                allow_redirects=allow_redirects,
-                max_redirects=max_redirects,
-                compress=compress,
-                chunked=chunked,
-                expect100=expect100,
-                read_until_eof=read_until_eof,
-                proxy=proxy,
-                proxy_auth=proxy_auth,
-                timeout=timeout,
-                ssl=ssl,
-                verify_ssl=verify_ssl,
-                fingerprint=fingerprint,
-                ssl_context=ssl_context,
-                proxy_headers=proxy_headers,
-            ) as resp:
+            _client_session = await Request._get_session(use_kw=True, **client_sess.params)
+        async with _client_session.request(
+            method=method,
+            url=url,
+            params=params,
+            data=data,
+            json=json,
+            headers=headers,
+            skip_auto_headers=skip_auto_headers,
+            auth=auth,
+            allow_redirects=allow_redirects,
+            max_redirects=max_redirects,
+            compress=compress,
+            chunked=chunked,
+            expect100=expect100,
+            read_until_eof=read_until_eof,
+            proxy=proxy,
+            proxy_auth=proxy_auth,
+            timeout=timeout,
+            ssl=ssl,
+            verify_ssl=verify_ssl,
+            fingerprint=fingerprint,
+            ssl_context=ssl_context,
+            proxy_headers=proxy_headers,
+        ) as resp:
 
-                func = keywords = None
-                if expect_resp is None:
-                    func = STATUS
-                else:
-                    if isinstance(expect_resp, (tuple, list)):
-                        if len(expect_resp) > 1:
-                            func, keywords = expect_resp
-                        else:
-                            func, = expect_resp
-                    elif isinstance(expect_resp, str):
-                        func = expect_resp
+            func = keywords = None
+            if expect_resp is None:
+                func = STATUS
+            else:
+                if isinstance(expect_resp, (tuple, list)):
+                    if len(expect_resp) > 1:
+                        func, keywords = expect_resp
+                    else:
+                        func, = expect_resp
+                elif isinstance(expect_resp, str):
+                    func = expect_resp
 
-                if func == TEXT:
-                    return await resp.text(**keywords)
-                elif func == JSON:
-                    return await resp.json(**keywords)
-                elif func == READ:
-                    return await resp.read()
-                elif func == RELEASE:
-                    return await resp.release()
-                elif func == GET_ENCODING:
-                    return resp.get_encoding()
-                elif func == CLOSE:
-                    return resp.close()
-                elif func == RAISE_FOR_STATUS:
-                    return resp.raise_for_status()
+            if func == TEXT:
+                return await resp.text(**keywords)
+            elif func == JSON:
+                return await resp.json(**keywords)
+            elif func == READ:
+                return await resp.read()
+            elif func == RELEASE:
+                return await resp.release()
+            elif func == GET_ENCODING:
+                return resp.get_encoding()
+            elif func == CLOSE:
+                return resp.close()
+            elif func == RAISE_FOR_STATUS:
+                return resp.raise_for_status()
 
-                all_attrs = dict(
-                    url=resp.url,
-                    version=resp.version,
-                    status=resp.status,
-                    reason=resp.reason,
-                    real_url=resp.real_url,
-                    connection=resp.connection,
-                    content=resp.content,
-                    cookies=resp.cookies,
-                    headers=resp.headers,
-                    raw_headers=resp.raw_headers,
-                    links=resp.links,
-                    content_type=resp.content_type,
-                    charset=resp.charset,
-                    content_disposition=resp.content_disposition,
-                    history=resp.history,
-                    request_info=resp.request_info,
-                )
+            all_attrs = dict(
+                url=resp.url,
+                version=resp.version,
+                status=resp.status,
+                reason=resp.reason,
+                real_url=resp.real_url,
+                connection=resp.connection,
+                content=resp.content,
+                cookies=resp.cookies,
+                headers=resp.headers,
+                raw_headers=resp.raw_headers,
+                links=resp.links,
+                content_type=resp.content_type,
+                charset=resp.charset,
+                content_disposition=resp.content_disposition,
+                history=resp.history,
+                request_info=resp.request_info,
+            )
 
-                if func == ALL_ATTRS:
-                    return all_attrs
+            if func == ALL_ATTRS:
+                return all_attrs
+            return all_attrs.get(func, None)
 
-                return all_attrs.get(func, None)
+    def __del__(self):
+        _ins = self._instance[0]
+        if not _ins.closed:
+            if _ins._connector_owner:
+                _ins._connector.close()
+            _ins._connector = None
 
     @staticmethod
     async def get(url, *, expect_resp=None, client_sess=None, **kwargs):
