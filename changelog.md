@@ -1,5 +1,10 @@
 # 版本日志
 
+* ### version 0.3.1 - 2018.8.11
+
+    #### Updated
+    * 确保 session 正确关闭
+
 * ### version 0.3.0 - 2018.8.8
     
     #### Updated

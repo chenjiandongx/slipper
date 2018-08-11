@@ -10,7 +10,7 @@ from setuptools import setup
 # $ git push origin VX.Y.Z
 
 NAME = "slipper"
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 URL = "https://github.com/chenjiandongx/slipper"
 AUTHOR = "chenjiandongx"
 AUTHOR_EMAIL = "chenjiandongx@qq.com"
@@ -27,8 +27,9 @@ CLASSIFIERS = [
     "Programming Language :: Python :: 3.5",
     "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 3 - Alpha",
     "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Topic :: Internet :: WWW/HTTP",

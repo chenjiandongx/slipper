@@ -540,9 +540,11 @@ class Request:
             return all_attrs.get(func, None)
 
     def __del__(self):
-        # 确保 session 能够被关闭
+        """
+        确保 session 能够被关闭
+        """
         _ins = self.__instance
-        if not _ins.closed:
+        if _ins and not _ins.closed:
             if _ins._connector_owner:
                 _ins._connector.close()
             _ins._connector = None
