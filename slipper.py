@@ -37,7 +37,7 @@ ALL_ATTRS = "all_attrs"
 
 class AttrResponse:
     """
-    Response 属性类
+    Response Attribute class
     """
 
     url = [URL]
@@ -61,7 +61,7 @@ class AttrResponse:
 
 class FuncResponse:
     """
-    Response 方法类
+    Response Function class
     """
 
     @staticmethod
@@ -70,8 +70,9 @@ class FuncResponse:
 
     @staticmethod
     def json(encoding=None, loads=json.loads, content_type="application/json"):
-        return JSON, dict(
-            encoding=encoding, loads=loads, content_type=content_type
+        return (
+            JSON,
+            dict(encoding=encoding, loads=loads, content_type=content_type),
         )
 
     @staticmethod
@@ -97,7 +98,7 @@ class FuncResponse:
 
 class Response(FuncResponse, AttrResponse):
     """
-    Response 类，继承自属性类和方法类
+    Response class, Inherited from Function class and Attribute class
 
     *Attrs*
     -------
@@ -224,12 +225,13 @@ class Response(FuncResponse, AttrResponse):
         BODY as JSON data parsed by loads parameter or None if BODY is
         empty or contains white-spaces only.
     """
+
     pass
 
 
 class Session:
     """
-    Session 类，用于传递 ClientSession 类初始化参数
+    Session class，transfer ClientSession class initialization parameter
     """
 
     def __init__(
@@ -326,18 +328,25 @@ class Session:
 class Request:
 
     __instance = None
+    __session_cfg = None
 
-    @staticmethod
-    async def _get_session(use_kw=False, **kwargs):
-        if not Request.__instance:
+    @classmethod
+    async def _get_session(cls, use_kw=False, **kwargs):
+        if not cls.__instance:
             if use_kw:
-                Request.__instance = aiohttp.ClientSession(**kwargs)
+                cls.__instance = aiohttp.ClientSession(**kwargs)
             else:
-                Request.__instance = aiohttp.ClientSession()
-        return Request.__instance
+                cls.__instance = aiohttp.ClientSession()
+        return cls.__instance
 
-    @staticmethod
+    @classmethod
+    def global_session(cls, session):
+        if not cls.__session_cfg:
+            cls.__session_cfg = session
+
+    @classmethod
     async def request(
+        cls,
         method,
         url,
         *,
@@ -458,10 +467,16 @@ class Request:
             HTTP headers to send to the proxy if the parameter
             proxy has been provided.
         """
+        gs = cls.__session_cfg
         if client_sess is None:
-            _client_session = await Request._get_session()
+            if gs.params:
+                _client_session = await cls._get_session(
+                    use_kw=True, **gs.params
+                )
+            else:
+                _client_session = await cls._get_session()
         else:
-            _client_session = await Request._get_session(
+            _client_session = await cls._get_session(
                 use_kw=True, **client_sess.params
             )
         async with _client_session.request(
@@ -541,7 +556,7 @@ class Request:
 
     def __del__(self):
         """
-        确保 session 能够被关闭
+        Make sure session could be cloesd
         """
         _ins = self.__instance
         if _ins and not _ins.closed:
@@ -549,8 +564,8 @@ class Request:
                 _ins._connector.close()
             _ins._connector = None
 
-    @staticmethod
-    async def get(url, *, expect_resp=None, client_sess=None, **kwargs):
+    @classmethod
+    async def get(cls, url, *, expect_resp=None, client_sess=None, **kwargs):
         """
 
         :param url: Request URL, str or URL.
@@ -563,7 +578,7 @@ class Request:
             ClientSession() instantiation parameters dictionary
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "get",
             url,
             expect_resp=expect_resp,
@@ -571,8 +586,8 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
-    async def options(url, expect_resp=None, client_sess=None, **kwargs):
+    @classmethod
+    async def options(cls, url, expect_resp=None, client_sess=None, **kwargs):
         """
 
         :param url: Request URL, str or URL.
@@ -580,7 +595,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "options",
             url,
             expect_resp=expect_resp,
@@ -588,8 +603,9 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
+    @classmethod
     async def head(
+        cls,
         url,
         allow_redirects=False,
         expect_resp=None,
@@ -605,7 +621,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "head",
             url,
             allow_redirects=allow_redirects,
@@ -614,9 +630,15 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
+    @classmethod
     async def post(
-        url, data=None, json=None, expect_resp=None, client_sess=None, **kwargs
+        cls,
+        url,
+        data=None,
+        json=None,
+        expect_resp=None,
+        client_sess=None,
+        **kwargs,
     ):
         """
 
@@ -629,7 +651,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "post",
             url,
             data=data,
@@ -639,9 +661,9 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
+    @classmethod
     async def put(
-        url, data=None, expect_resp=None, client_sess=None, **kwargs
+        cls, url, data=None, expect_resp=None, client_sess=None, **kwargs
     ):
         """
 
@@ -652,7 +674,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "put",
             url,
             data=data,
@@ -661,9 +683,9 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
+    @classmethod
     async def patch(
-        url, data=None, expect_resp=None, client_sess=None, **kwargs
+        cls, url, data=None, expect_resp=None, client_sess=None, **kwargs
     ):
         """
 
@@ -674,7 +696,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "patch",
             url,
             expect_resp=expect_resp,
@@ -683,8 +705,8 @@ class Request:
             **kwargs,
         )
 
-    @staticmethod
-    async def delete(url, expect_resp=None, client_sess=None, **kwargs):
+    @classmethod
+    async def delete(cls, url, expect_resp=None, client_sess=None, **kwargs):
         """
 
         :param url: Request URL, str or URL.
@@ -692,7 +714,7 @@ class Request:
         :param client_sess: refer get()
         :param kwargs:
         """
-        return await Request.request(
+        return await cls.request(
             "delete",
             url,
             expect_resp=expect_resp,

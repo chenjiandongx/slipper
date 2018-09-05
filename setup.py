@@ -10,7 +10,7 @@ from setuptools import setup
 # $ git push origin VX.Y.Z
 
 NAME = "slipper"
-VERSION = "0.3.1"
+VERSION = "0.4.0"
 URL = "https://github.com/chenjiandongx/slipper"
 AUTHOR = "chenjiandongx"
 AUTHOR_EMAIL = "chenjiandongx@qq.com"

@@ -25,12 +25,19 @@ $ python setup.py install
 
 ### API
 
-参照注释文档，接口与 aiohttp 保持一致，另外新增了两个参数
+**参数 API**
+
+参照注释文档，接口与 Aiohttp 保持一致，另外新增了两个参数
 
 * expect_resp  
     期待的 `Response` 类型，`expect_resp=Response.text()` 相当于 aiohttp 的 `session.get().text()` 其他属性如 `url`, `version`, `headers` 等是类似的。
 * client_sess  
     传入的 `Session` 类实例，实例化参数与 aiohttp 的 `ClientSession` 参数一致。
+
+**方法 API**
+
+* global_session(session)  
+    seesion 为 Session 类
 
 
 ### 示例
@@ -102,7 +109,7 @@ loop = asyncio.get_event_loop()
 loop.run_until_complete(asyncio.wait(tasks))
 ```
 
-**使用 Session**
+**使用普通 Session**
 ```python
 import asyncio
 from pprint import pprint
@@ -130,6 +137,35 @@ tasks = [fetch(url, sem, sess) for url in ["http://chenjiandongx.com"] * 5]
 loop = asyncio.get_event_loop()
 loop.run_until_complete(asyncio.wait(tasks))
 ```
+
+**使用全局 Session**
+```python
+import asyncio
+from pprint import pprint
+
+from slipper import Response, Session, requests
+
+USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36"
+)
+
+requests.global_session(Session(headers={"User-Agent": USER_AGENT}))
+
+
+async def fetch(url, sem):
+    async with sem:
+        text = await requests.get(url, expect_resp=Response.request_info)
+        pprint(text)
+
+
+sem = asyncio.Semaphore(5)
+tasks = [fetch(url, sem) for url in ["http://chenjiandongx.com"] * 5]
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(tasks))
+```
+
 怎么样，是不是写起来很顺手 😄
 
 
