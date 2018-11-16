@@ -10,7 +10,7 @@ from setuptools import setup
 # $ git push origin VX.Y.Z
 
 NAME = "slipper"
-VERSION = "0.4.0"
+VERSION = "0.4.1"
 URL = "https://github.com/chenjiandongx/slipper"
 AUTHOR = "chenjiandongx"
 AUTHOR_EMAIL = "chenjiandongx@qq.com"
@@ -35,7 +35,6 @@ CLASSIFIERS = [
     "Topic :: Internet :: WWW/HTTP",
     "Framework :: AsyncIO",
 ]
-
 
 setup(
     author=AUTHOR,

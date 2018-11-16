@@ -70,10 +70,7 @@ class FuncResponse:
 
     @staticmethod
     def json(encoding=None, loads=json.loads, content_type="application/json"):
-        return (
-            JSON,
-            dict(encoding=encoding, loads=loads, content_type=content_type),
-        )
+        return (JSON, dict(encoding=encoding, loads=loads, content_type=content_type))
 
     @staticmethod
     def read():
@@ -326,17 +323,13 @@ class Session:
 
 
 class Request:
-
     __instance = None
     __session_cfg = None
 
     @classmethod
-    async def _get_session(cls, use_kw=False, **kwargs):
+    async def _get_session(cls, **kwargs):
         if not cls.__instance:
-            if use_kw:
-                cls.__instance = aiohttp.ClientSession(**kwargs)
-            else:
-                cls.__instance = aiohttp.ClientSession()
+            cls.__instance = aiohttp.ClientSession(**kwargs)
         return cls.__instance
 
     @classmethod
@@ -469,16 +462,10 @@ class Request:
         """
         gs = cls.__session_cfg
         if client_sess is None:
-            if gs.params:
-                _client_session = await cls._get_session(
-                    use_kw=True, **gs.params
-                )
-            else:
-                _client_session = await cls._get_session()
+            kws = getattr(gs, "params", {})
+            _client_session = await cls._get_session(**kws)
         else:
-            _client_session = await cls._get_session(
-                use_kw=True, **client_sess.params
-            )
+            _client_session = await cls._get_session(use_kw=True, **client_sess.params)
         async with _client_session.request(
             method=method,
             url=url,
@@ -579,11 +566,7 @@ class Request:
         :param kwargs:
         """
         return await cls.request(
-            "get",
-            url,
-            expect_resp=expect_resp,
-            client_sess=client_sess,
-            **kwargs,
+            "get", url, expect_resp=expect_resp, client_sess=client_sess, **kwargs
         )
 
     @classmethod
@@ -596,21 +579,12 @@ class Request:
         :param kwargs:
         """
         return await cls.request(
-            "options",
-            url,
-            expect_resp=expect_resp,
-            client_sess=client_sess,
-            **kwargs,
+            "options", url, expect_resp=expect_resp, client_sess=client_sess, **kwargs
         )
 
     @classmethod
     async def head(
-        cls,
-        url,
-        allow_redirects=False,
-        expect_resp=None,
-        client_sess=None,
-        **kwargs,
+        cls, url, allow_redirects=False, expect_resp=None, client_sess=None, **kwargs
     ):
         """
 
@@ -632,13 +606,7 @@ class Request:
 
     @classmethod
     async def post(
-        cls,
-        url,
-        data=None,
-        json=None,
-        expect_resp=None,
-        client_sess=None,
-        **kwargs,
+        cls, url, data=None, json=None, expect_resp=None, client_sess=None, **kwargs
     ):
         """
 
@@ -662,9 +630,7 @@ class Request:
         )
 
     @classmethod
-    async def put(
-        cls, url, data=None, expect_resp=None, client_sess=None, **kwargs
-    ):
+    async def put(cls, url, data=None, expect_resp=None, client_sess=None, **kwargs):
         """
 
         :param url: Request URL, str or URL.
@@ -684,9 +650,7 @@ class Request:
         )
 
     @classmethod
-    async def patch(
-        cls, url, data=None, expect_resp=None, client_sess=None, **kwargs
-    ):
+    async def patch(cls, url, data=None, expect_resp=None, client_sess=None, **kwargs):
         """
 
         :param url: Request URL, str or URL.
@@ -715,11 +679,7 @@ class Request:
         :param kwargs:
         """
         return await cls.request(
-            "delete",
-            url,
-            expect_resp=expect_resp,
-            client_sess=client_sess,
-            **kwargs,
+            "delete", url, expect_resp=expect_resp, client_sess=client_sess, **kwargs
         )
 
 
